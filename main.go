@@ -3,9 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 )
@@ -65,11 +63,5 @@ func formatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
 	http.HandleFunc("/format", formatHandler)
-	log.Println("Starting server on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }
