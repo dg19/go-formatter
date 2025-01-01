@@ -19,6 +19,20 @@ type FormatResponse struct {
 }
 
 func formatHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "OPTIONS" {
+		// CORSプリフライトリクエストへの対応
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	var req FormatRequest
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -42,6 +56,8 @@ func formatHandler(w http.ResponseWriter, r *http.Request) {
 
 	res := FormatResponse{FormattedCode: string(formatted)}
 	w.Header().Set("Content-Type", "application/json")
+	// CORSヘッダーの追加
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(res)
 }
 
