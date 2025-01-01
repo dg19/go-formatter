@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -63,5 +65,13 @@ func formatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
+
 	http.HandleFunc("/format", formatHandler)
+	log.Printf("Starting server on port %s...\n", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
