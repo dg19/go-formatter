@@ -27,12 +27,6 @@ func enableCors(w *http.ResponseWriter) {
 func formatHandler(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
 
-	// Handle preflight request
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
