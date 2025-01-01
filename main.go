@@ -18,14 +18,20 @@ type FormatResponse struct {
 	FormattedCode string `json:"formattedCode"`
 }
 
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
+func setupCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }
 
 func formatHandler(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	setupCORS(w)
+
+	// Handle preflight request
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -53,14 +59,13 @@ func formatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := FormatResponse{FormattedCode: string(formatted)}
 	w.Header().Set("Content-Type", "application/json")
+	res := FormatResponse{FormattedCode: string(formatted)}
 	json.NewEncoder(w).Encode(res)
 }
 
 func main() {
 	port := os.Getenv("PORT")
-
 	if port == "" {
 		log.Fatal("$PORT must be set")
 	}
