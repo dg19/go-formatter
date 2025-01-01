@@ -2,12 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"go/format"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
-	"strings"
 )
 
 type FormatRequest struct {
@@ -16,6 +15,7 @@ type FormatRequest struct {
 
 type FormatResponse struct {
 	FormattedCode string `json:"formattedCode"`
+	Error         string `json:"error,omitempty"`
 }
 
 func setupCORS(w http.ResponseWriter) {
@@ -24,38 +24,42 @@ func setupCORS(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }
 
+func sendJSONError(w http.ResponseWriter, message string, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(FormatResponse{Error: message})
+}
+
 func formatHandler(w http.ResponseWriter, r *http.Request) {
 	setupCORS(w)
 
-	// Handle preflight request
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		sendJSONError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var req FormatRequest
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Failed to read request", http.StatusBadRequest)
+		sendJSONError(w, "Failed to read request", http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(body, &req)
 	if err != nil {
-		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		sendJSONError(w, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
 
-	cmd := exec.Command("gofmt")
-	cmd.Stdin = strings.NewReader(req.Code)
-	formatted, err := cmd.Output()
+	// go/format パッケージを使用してフォーマット
+	formatted, err := format.Source([]byte(req.Code))
 	if err != nil {
-		http.Error(w, "Failed to format code", http.StatusInternalServerError)
+		sendJSONError(w, "Failed to format code: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
