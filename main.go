@@ -62,10 +62,6 @@ func formatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// 静的ファイルの提供（オプション）
-	fs := http.FileServer(http.Dir("./"))
-	http.Handle("/", fs)
-
 	// APIハンドラー
 	http.HandleFunc("/format", formatHandler)
 
