@@ -1,1 +1,1 @@
-web: ./go-code-formatter
+
