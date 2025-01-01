@@ -1,1 +1,1 @@
-web: bin/codefeeddev
+web: bin/go-formatter
