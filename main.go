@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/getsentry/sentry-go"
 )
 
 type FormatRequest struct {
@@ -72,20 +70,6 @@ func formatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	err := sentry.Init(sentry.ClientOptions{
-		Dsn: "https://5e5a8949c200dfdc28266d200515911a@o4506683002519552.ingest.us.sentry.io/4508573634068480",
-		// Set TracesSampleRate to 1.0 to capture 100%
-		// of transactions for tracing.
-		// We recommend adjusting this value in production,
-		TracesSampleRate: 1.0,
-	})
-	if err != nil {
-		log.Fatalf("sentry.Init: %s", err)
-	}
-	// Flush buffered events before the program terminates.
-	defer sentry.Flush(2 * time.Second)
-
-	sentry.CaptureMessage("It works!")
 	port := os.Getenv("PORT")
 	if port == "" {
 		log.Fatal("$PORT must be set")
