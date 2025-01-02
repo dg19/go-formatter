@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 type FormatRequest struct {
@@ -22,7 +21,6 @@ type FormatResponse struct {
 func setupCORS(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }
 
 func sendJSONError(w http.ResponseWriter, message string, status int) {
